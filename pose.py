@@ -11,7 +11,7 @@ import numpy as np
 
 sourceFile = 'monday_practice.mp4'
 
-model_path = 'pose_landmarker_heavy.task'
+model_path = 'pose_landmarker_lite.task'
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
