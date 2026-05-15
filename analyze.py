@@ -14,4 +14,5 @@ relXDistance = [(x[0], abs(x[1][0][0] - x[1][1][0])) for x in twoPoseEntries]
 print(relXDistance)
 x, y = list(zip(*relXDistance))
 plt.plot([t/1000 for t in x ], y)
+plt.savefig('figure.png', dpi=300)
 plt.show()
