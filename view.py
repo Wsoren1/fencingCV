@@ -6,25 +6,50 @@ import platform
 from PIL import Image
 from PIL import ImageTk
 
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk
+)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+import numpy as np
+
 import sys
 import glob
+import pickle
 
 def main(runDir):
     root = tk.Tk()
     root.geometry("1920x1080")
-    root.title('FencingCV - A Measurement Platform by Karina')
+    root.title('FencingCV - A Measurement Platform')
 
     # Create a Frame to act as the video container
     video_frame = tk.Frame(root, bg="black")
     video_frame.pack(fill=tk.BOTH, expand=True)
 
 
-    # TODO replace with matplotlib instance.  Different window would be cool too, but no stress right now.
-    img = Image.open(f'{runDir}/twofencerpos.png')
-    img = img.resize((1920, int(1080/3)))
-    photo_img = ImageTk.PhotoImage(img)
-    label = tk.Label(root, image=photo_img)
-    label.pack(side="bottom")
+    fig = Figure(figsize=(14,6), dpi=70)
+
+    t, left_pos, right_pos = pickle.load(open(f'{runDir}/twofencerposdata.p', 'rb'))
+
+    ax = fig.add_subplot(111)
+    ax.plot(t, left_pos, label='FOTL')
+    ax.plot(t, right_pos, label='FOTR')
+    ax.set_ylabel('Fencer Position (pixels from left)')
+    ax.set_xlabel('Time (s)')
+
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=False)
+    toolbar = NavigationToolbar2Tk(canvas, root)
+    toolbar.update()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=False)
+    
+    def on_key_press(event):
+        key_press_handler(event, canvas, toolbar)
+
+    canvas.mpl_connect("key_press_event", on_key_press)
+
 
     # Initialize VLC player
     instance = vlc.Instance('--input-repeat=999999')
@@ -36,7 +61,7 @@ def main(runDir):
 
     # Load media and play
     files = glob.glob(f'{runDir}/*.mp4')
-    print(files)
+    
     media = instance.media_new(files[0])
 
     player.set_media(media)

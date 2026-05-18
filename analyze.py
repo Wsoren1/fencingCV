@@ -19,7 +19,8 @@ def positions(runDir, X):
     plt.legend()
 
     plt.savefig(f'{runDir}/twofencerpos.png', dpi=300)
-
+    pickle.dump((t, left_pos, right_pos),
+                open(f'{runDir}/twofencerposdata.p', 'wb'))
 
 def relative_distances(runDir, X):
     plt.clf()
