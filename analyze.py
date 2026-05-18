@@ -19,7 +19,6 @@ def positions(runDir, X):
     plt.legend()
 
     plt.savefig(f'{runDir}/twofencerpos.png', dpi=300)
-    plt.show()
 
 
 def relative_distances(runDir, X):
@@ -32,12 +31,17 @@ def relative_distances(runDir, X):
     plt.plot([t/1000 for t in x ], y)
     plt.savefig(f'{runDir}/distance.png', dpi=300)
 
-def main(runDir):
+def main(runDir, fromScript):
     X = pickle.load(open(f"{runDir}/cmass_timeseries.p", "rb"))
 
     relative_distances(runDir, X)
+
     positions(runDir, X)
+    if not fromScript:
+        plt.show()
+
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    fromScript = len(sys.argv) == 3
+    main(sys.argv[1], fromScript)

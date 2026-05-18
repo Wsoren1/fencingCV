@@ -10,7 +10,7 @@ import numpy as np
 import sys
 
 def main(sourceFile, targetDirName):
-    model_path = 'pose_landmarker_heavy.task'
+    model_path = 'pose_landmarker_lite.task'
 
     BaseOptions = mp.tasks.BaseOptions
     PoseLandmarker = mp.tasks.vision.PoseLandmarker
@@ -47,7 +47,8 @@ def main(sourceFile, targetDirName):
 
         if out is None: # then live a life of despair
             fps = cap.get(cv2.CAP_PROP_FPS)
-            out = cv2.VideoWriter(f'{targetDirName}/annotated_{sourceFile}', fourcc, fps, (width, height))
+            print('[INFO] Writing to: ' + f'{targetDirName}/annotated_{sourceFile.split('/')[-1]}')
+            out = cv2.VideoWriter(f'{targetDirName}/annotated_{sourceFile.split('/')[-1]}', fourcc, fps, (width, height))
 
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
 
