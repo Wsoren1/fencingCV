@@ -7,5 +7,6 @@ python pose.py $1 "runs/$runid"
 
 python analyze.py "runs/$runid" fromscript
 
+python view.py "runs/$runid"
 rm -r runs/latest
 cp -r "runs/$runid" runs/latest
