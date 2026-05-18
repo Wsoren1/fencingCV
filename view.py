@@ -11,6 +11,7 @@ from matplotlib.backends.backend_tkagg import (
 )
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+from matplotlib.animation import FuncAnimation
 
 import numpy as np
 
@@ -18,6 +19,7 @@ import sys
 import glob
 import pickle
 import time
+
 
 def main(runDir):
     root = tk.Tk()
@@ -37,7 +39,7 @@ def main(runDir):
     ax.plot(t, right_pos, label='FOTR')
     ax.set_ylabel('Fencer Position (pixels from left)')
     ax.set_xlabel('Time (s)')
-
+    
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=False)
@@ -67,44 +69,56 @@ def main(runDir):
     player.set_media(media)
     player.play()
 
+    def draw_vline(ax):
+        v_line = ax.axvline(x=player.get_time()/1000, color='red', linestyle='--')
+        canvas.draw()
+        v_line.remove()
+ 
+    
     def on_play_pause_click(event=None):
         player.pause()
 
-    def frame_scrub_back(event=None):
+    def frame_scrub_back(ax):
         player.set_pause(1)
         fps = player.get_fps() or 25.0
         mspf = int(1000 // fps)
 
         current_time = player.get_time()
         player.set_time(current_time - mspf)
+
+        draw_vline(ax)
         
-    def frame_scrub_forward(event=None):
+    def frame_scrub_forward(ax):
         player.set_pause(1)
         fps = player.get_fps() or 25.0  
         mspf = int(1000 // fps)
     
         current_time = player.get_time()
         player.set_time(current_time + mspf)
+        draw_vline(ax)
                
-    root.bind('<comma>', frame_scrub_back)
-    root.bind('<period>', frame_scrub_forward)
+    root.bind('<comma>', lambda x : frame_scrub_back(ax))
+    root.bind('<period>', lambda x : frame_scrub_forward(ax))
     root.bind('<space>', on_play_pause_click)
 
     # play_pause = tk.Button(video_frame, text='Play/Pause', command=on_play_pause_click)
     # play_pause.pack(side='bottom')
 
-    def scale_scrub(value):
+    def scale_scrub(value, ax):
         player.set_pause(1)
         player.set_position(int(value)/1000)
 
+        draw_vline(ax)
+        
     scrubber_val = tk.IntVar(value=0)
-    scrubber = tk.Scale(video_frame, variable = scrubber_val, from_=0, to=1000, orient=tk.HORIZONTAL, command=scale_scrub)
+    scrubber = tk.Scale(video_frame, variable = scrubber_val, from_=0, to=1000, orient=tk.HORIZONTAL, command=lambda event : scale_scrub(event, ax))
     scrubber.pack(side='bottom', fill=tk.BOTH)
     
-    def update_scrubber(value):
+    def update_scrubber(value, ax):
+        draw_vline(ax)
         scrubber_val.set(player.get_position() * 1000)
         
-    player.event_manager().event_attach(vlc.EventType.MediaPlayerTimeChanged, update_scrubber)
+    player.event_manager().event_attach(vlc.EventType.MediaPlayerTimeChanged, update_scrubber, ax)
 
         
     root.mainloop()
