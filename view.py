@@ -17,6 +17,7 @@ import numpy as np
 import sys
 import glob
 import pickle
+import time
 
 def main(runDir):
     root = tk.Tk()
@@ -26,7 +27,6 @@ def main(runDir):
     # Create a Frame to act as the video container
     video_frame = tk.Frame(root, bg="black")
     video_frame.pack(fill=tk.BOTH, expand=True)
-
 
     fig = Figure(figsize=(14,6), dpi=70)
 
@@ -66,21 +66,47 @@ def main(runDir):
 
     player.set_media(media)
     player.play()
-    global player_playing
-    player_playing = True
 
     def on_play_pause_click(event=None):
-        global player_playing
-        if player_playing:
-            player.pause()
-        else:
-            player.play()
-        player_playing = not player_playing
+        player.pause()
 
+    def frame_scrub_back(event=None):
+        player.set_pause(1)
+        fps = player.get_fps() or 25.0
+        mspf = int(1000 // fps)
+
+        current_time = player.get_time()
+        player.set_time(current_time - mspf)
+        
+    def frame_scrub_forward(event=None):
+        player.set_pause(1)
+        fps = player.get_fps() or 25.0  
+        mspf = int(1000 // fps)
+    
+        current_time = player.get_time()
+        player.set_time(current_time + mspf)
+               
+    root.bind('<comma>', frame_scrub_back)
+    root.bind('<period>', frame_scrub_forward)
     root.bind('<space>', on_play_pause_click)
 
-    play_pause = tk.Button(video_frame, text='Play/Pause', command=on_play_pause_click)
-    play_pause.pack(side='top')
+    # play_pause = tk.Button(video_frame, text='Play/Pause', command=on_play_pause_click)
+    # play_pause.pack(side='bottom')
+
+    def scale_scrub(value):
+        player.set_pause(1)
+        player.set_position(int(value)/1000)
+
+    scrubber_val = tk.IntVar(value=0)
+    scrubber = tk.Scale(video_frame, variable = scrubber_val, from_=0, to=1000, orient=tk.HORIZONTAL, command=scale_scrub)
+    scrubber.pack(side='bottom', fill=tk.BOTH)
+    
+    def update_scrubber(value):
+        scrubber_val.set(player.get_position() * 1000)
+        
+    player.event_manager().event_attach(vlc.EventType.MediaPlayerTimeChanged, update_scrubber)
+
+        
     root.mainloop()
 
 if __name__ == "__main__":
