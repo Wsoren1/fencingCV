@@ -37,6 +37,7 @@ def main(runDir):
     ax = fig.add_subplot(111)
     ax.plot(t, left_pos, label='FOTL')
     ax.plot(t, right_pos, label='FOTR')
+    ax.legend()
     ax.set_ylabel('Fencer Position (pixels from left)')
     ax.set_xlabel('Time (s)')
     
