@@ -10,7 +10,7 @@ import numpy as np
 import sys
 
 def main(sourceFile, targetDirName):
-    model_path = 'pose_landmarker_lite.task'
+    model_path = 'pose_landmarker_heavy.task'
 
     BaseOptions = mp.tasks.BaseOptions
     PoseLandmarker = mp.tasks.vision.PoseLandmarker
@@ -75,8 +75,14 @@ def main(sourceFile, targetDirName):
                         # I'm ok with storing these points, but I don't want
                         # them annotated on the video.
                         continue
+                    if i in [11, 13, 15]:
+                        color = (0, 255, 0)
+                    elif i in [12, 14, 16]:
+                        color = (255, 0, 0)
+                    else:
+                        color = (0, 0, 255)
 
-                    cv2.circle(img, coords, radius=4, color=(0, 0, 255), thickness=-1)
+                    cv2.circle(img, coords, radius=4, color=color, thickness=-1)
                 current_frame_pose_data[1].append(pose_coords)
                 torso_coords = [pose_coords[x] for x in torso_pts]
                 x_mean = sum(pt[0] for pt in torso_coords) / len(torso_coords)

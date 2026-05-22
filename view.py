@@ -33,13 +33,23 @@ def main(runDir):
     fig = Figure(figsize=(14,6), dpi=70)
 
     t, left_pos, right_pos = pickle.load(open(f'{runDir}/twofencerposdata.p', 'rb'))
-
-    ax = fig.add_subplot(111)
+    
+    
+    ax = fig.add_subplot(211)
     ax.plot(t, left_pos, label='FOTL')
     ax.plot(t, right_pos, label='FOTR')
     ax.legend()
     ax.set_ylabel('Fencer Position (pixels from left)')
     ax.set_xlabel('Time (s)')
+    
+    t, left_extension, right_extension = pickle.load(open(f'{runDir}/extensiondata.p', 'rb'))
+    ax2 = fig.add_subplot(212)
+    ax2.plot(t, left_extension, label='FOTL')
+    ax2.plot(t, right_extension, label='FOTR')
+    ax2.legend()
+    ax2.set_ylabel('P(Extension) of Fencer')
+    ax2.set_xlabel('Time (s)')
+
     
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
@@ -71,9 +81,11 @@ def main(runDir):
     player.play()
 
     def draw_vline(ax):
-        v_line = ax.axvline(x=player.get_time()/1000, color='red', linestyle='--')
+        v_line1 = ax.axvline(x=player.get_time()/1000, color='red', linestyle='--')
+        v_line2 = ax2.axvline(x=player.get_time()/1000, color='red', linestyle='--')
         canvas.draw()
-        v_line.remove()
+        v_line1.remove()
+        v_line2.remove()
  
     
     def on_play_pause_click(event=None):
