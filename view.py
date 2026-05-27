@@ -19,7 +19,9 @@ import sys
 import glob
 import pickle
 import time
-
+import csv
+import os
+user_is_typing = False
 
 def main(runDir):
     root = tk.Tk()
@@ -76,6 +78,7 @@ def main(runDir):
     files = glob.glob(f'{runDir}/*.mp4')
     
     media = instance.media_new(files[0])
+    media.add_option(":avcodec-hw=none")
 
     player.set_media(media)
     player.play()
@@ -89,9 +92,15 @@ def main(runDir):
  
     
     def on_play_pause_click(event=None):
+        global user_is_typing
+        if user_is_typing:
+            return
         player.pause()
 
     def frame_scrub_back(ax):
+        global user_is_typing
+        if user_is_typing:
+            return
         player.set_pause(1)
         fps = player.get_fps() or 25.0
         mspf = int(1000 // fps)
@@ -102,6 +111,9 @@ def main(runDir):
         draw_vline(ax)
         
     def frame_scrub_forward(ax):
+        global user_is_typing
+        if user_is_typing:
+            return
         player.set_pause(1)
         fps = player.get_fps() or 25.0  
         mspf = int(1000 // fps)
@@ -150,14 +162,23 @@ def main(runDir):
 
     duration_label.grid(row=3, column=1)
     duration_value.grid(row=3, column=2)
-    
+
+    def on_focus_in(event):
+        global user_is_typing
+        user_is_typing = True
+
+    def on_focus_out(event):
+        global user_is_typing
+        user_is_typing = False
+
     note_label = tk.Label(time_table, text='Note:')
     note_label.grid(row=4)
     note_entry = tk.Entry(time_table)
     note_entry.grid(row=4, column=1, columnspan=2)
-    
-    time_table.pack(side='right')
-    
+
+    note_entry.bind("<FocusIn>", on_focus_in)
+    note_entry.bind("<FocusOut>", on_focus_out)
+
     time_check = [-1, -1]
 
     def format_ms(ms):
@@ -166,6 +187,10 @@ def main(runDir):
         return f"{minutes:02d}:{seconds:02d}.{milliseconds:03d}"
 
     def handle_mark(time_check):
+        global user_is_typing
+        if user_is_typing:
+            return
+
         t1 = time_check[0]
         t2 = time_check[1]
         
@@ -187,6 +212,24 @@ def main(runDir):
             return
 
         return
+
+    def write_times_to_file(times):
+       root.focus_set()
+       if not os.path.isfile(f'{runDir}/user_review_data.csv'):
+           with open(f'{runDir}/user_review_data.csv', 'w') as f:
+               writer = csv.writer(f)
+               writer.writerow(['Start', 'End', 'Duration', 'Note'])
+
+       with open(f'{runDir}/user_review_data.csv', 'a', newline='') as f:
+           writer = csv.writer(f)
+
+           writer.writerow([times[0], times[1], times[1] - times[0], note_entry.get()])
+
+
+    save_button = tk.Button(time_table, text='Save', command=lambda : write_times_to_file(time_check))
+    save_button.grid(row=5, column=1, columnspan=3)
+
+    time_table.pack(side='right')
 
 
     def update_scrubber(value, ax):

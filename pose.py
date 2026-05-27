@@ -10,7 +10,7 @@ import numpy as np
 import sys
 
 def main(sourceFile, targetDirName):
-    model_path = 'pose_landmarker_heavy.task'
+    model_path = 'pose_landmarker_lite.task'
 
     BaseOptions = mp.tasks.BaseOptions
     PoseLandmarker = mp.tasks.vision.PoseLandmarker
