@@ -109,10 +109,11 @@ def main(runDir):
         current_time = player.get_time()
         player.set_time(current_time + mspf)
         draw_vline(ax)
-               
+        
     root.bind('<comma>', lambda x : frame_scrub_back(ax))
     root.bind('<period>', lambda x : frame_scrub_forward(ax))
     root.bind('<space>', on_play_pause_click)
+    root.bind('<m>', lambda x : handle_mark(time_check))
 
     # play_pause = tk.Button(video_frame, text='Play/Pause', command=on_play_pause_click)
     # play_pause.pack(side='bottom')
@@ -126,7 +127,68 @@ def main(runDir):
     scrubber_val = tk.IntVar(value=0)
     scrubber = tk.Scale(video_frame, variable = scrubber_val, from_=0, to=1000, orient=tk.HORIZONTAL, command=lambda event : scale_scrub(event, ax))
     scrubber.pack(side='bottom', fill=tk.BOTH)
+
     
+    time_table = tk.Frame(video_frame)
+
+    time_table_title = tk.Label(time_table, text='Time Table (\'m\' to mark durations)')
+    time_table_title.grid(row=0, column=0, columnspan=3)
+    
+    time_1 = tk.Label(time_table, text='t1')
+    time_2 = tk.Label(time_table, text='t2')
+
+    time_1_v = tk.Label(time_table, text='00:00:000')
+    time_2_v = tk.Label(time_table, text='00:00:000')
+
+    time_1.grid(row=1, column=1)
+    time_2.grid(row=1, column=2)
+    time_1_v.grid(row=2, column=1)
+    time_2_v.grid(row=2, column=2)
+
+    duration_label = tk.Label(time_table, text='Duration:')
+    duration_value = tk.Label(time_table, text='00:00:000')
+
+    duration_label.grid(row=3, column=1)
+    duration_value.grid(row=3, column=2)
+    
+    note_label = tk.Label(time_table, text='Note:')
+    note_label.grid(row=4)
+    note_entry = tk.Entry(time_table)
+    note_entry.grid(row=4, column=1, columnspan=2)
+    
+    time_table.pack(side='right')
+    
+    time_check = [-1, -1]
+
+    def format_ms(ms):
+        seconds, milliseconds = divmod(ms, 1000)
+        minutes, seconds = divmod(seconds, 60)
+        return f"{minutes:02d}:{seconds:02d}.{milliseconds:03d}"
+
+    def handle_mark(time_check):
+        t1 = time_check[0]
+        t2 = time_check[1]
+        
+        if time_check[0] != -1 and time_check[1] != -1:
+            time_check[0] = -1
+            time_check[1] = -1
+            time_1_v.config(text='00:00:000')
+            time_2_v.config(text='00:00:000')
+            duration_value.config(text='00:00:000')
+        
+        if time_check[0] == -1:
+            time_check[0] = player.get_time()
+            time_1_v.config(text=format_ms(time_check[0]))
+            return
+        else:
+            time_check[1] = player.get_time()
+            time_2_v.config(text=format_ms(time_check[1]))
+            duration_value.config(text=format_ms(time_check[1] - time_check[0]))
+            return
+
+        return
+
+
     def update_scrubber(value, ax):
         draw_vline(ax)
         scrubber_val.set(player.get_position() * 1000)
