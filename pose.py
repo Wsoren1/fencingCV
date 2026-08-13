@@ -45,7 +45,7 @@ def main(sourceFile, targetDirName):
 
         height, width, _ = img.shape
 
-        if out is None: # then live a life of despair
+        if out is None:
             fps = cap.get(cv2.CAP_PROP_FPS)
             print('[INFO] Writing to: ' + f'{targetDirName}/annotated_{sourceFile.split('/')[-1]}')
             out = cv2.VideoWriter(f'{targetDirName}/annotated_{sourceFile.split('/')[-1]}', fourcc, fps, (width, height))
