@@ -22,3 +22,16 @@ Custom CV modeling for fencing poses
 Handling of dynamic camera angles and zoom 
 
 Increase UX for rapid data entry
+
+## How to run:
+requirements: Python, Virtualenv, wget
+
+```
+chmod u+x envsetup.sh posegen.sh
+```
+```
+./envsetup.sh
+```
+```
+./posegen.sh sourceVideos/testVideo.mp4
+```
