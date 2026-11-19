@@ -33,5 +33,8 @@ chmod u+x envsetup.sh posegen.sh
 ./envsetup.sh
 ```
 ```
+source env/bin/activate
+```
+```
 ./posegen.sh sourceVideos/testVideo.mp4
 ```
