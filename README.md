@@ -21,6 +21,10 @@ Custom CV modeling for fencing poses
 
 Handling of dynamic camera angles and zoom 
 
+Audio component to view soundwave plot
+
+Scorecard viewer to mark when overlay marks a point for fencing streams
+
 Increase UX for rapid data entry
 
 ## How to run:
