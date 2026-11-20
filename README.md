@@ -1,5 +1,5 @@
 # FencingCV
-FencingCV is a new project aimed at providing an analytics platform for annotating fencing videos for the research of athlete performance.
+FencingCV is a new project aimed at providing an analytics platform for annotating fencing videos for the research of athlete behavior.
 
 ![Showcase of a time series analysis of a fencing bout](./showcase.gif)
 
